@@ -52,6 +52,7 @@ if status == cv2.Stitcher_OK:
 
     show_image("Threshold", threshold)
 
+    # Find contours in the thresholded image
     contours = cv2.findContours(threshold.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours = imutils.grab_contours(contours)
     if not contours:
@@ -59,6 +60,7 @@ if status == cv2.Stitcher_OK:
         exit()
     areaOI = max(contours, key=cv2.contourArea)
 
+    # Create a mask of the largest contour
     mask = np.zeros(threshold.shape, dtype="uint8")
     x, y, w, h = cv2.boundingRect(areaOI)
     cv2.rectangle(mask, (x, y), (x + w, y + h), 255, -1)
@@ -66,12 +68,14 @@ if status == cv2.Stitcher_OK:
     minRectangle = mask.copy()
     sub = mask.copy()
 
+    # Erode the mask to find the minimum rectangle
     while cv2.countNonZero(sub) > 0:
         minRectangle = cv2.erode(minRectangle, np.ones((3, 3), np.uint8), iterations=1)
         sub = cv2.subtract(minRectangle, threshold)
         if cv2.countNonZero(minRectangle) < 0.5 * cv2.countNonZero(mask):  # Stop if area is less than 50% of original
             break
 
+    # Find contours in the eroded mask
     contours = cv2.findContours(minRectangle.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours = imutils.grab_contours(contours)
     if not contours:
@@ -81,10 +85,13 @@ if status == cv2.Stitcher_OK:
 
     show_image("Min Rectangle", minRectangle)
 
+    # Get the bounding rectangle of the largest contour
     x, y, w, h = cv2.boundingRect(areaOI)
 
+    # Crop the stitched image to the bounding rectangle
     stitchedOutput = stitched[y:y+h, x:x+w]
 
+    # Save and display the final processed image
     cv2.imwrite("stitchedOutputProcessed.png", stitchedOutput)
     show_image("Stitched Image Processed", stitchedOutput)
 
