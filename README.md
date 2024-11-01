@@ -1,8 +1,6 @@
 
 # Image Stitching in Python with OpenCV
 
-![Project Banner](path/to/banner_image.png)
-
 ## Table of Contents
 
 - [Introduction](#introduction)
